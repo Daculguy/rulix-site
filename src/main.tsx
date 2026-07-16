@@ -1,38 +1,44 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { createHashRouter, Navigate, RouterProvider } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { MarketingSite } from "./components/MarketingSite";
 import { Contact } from "./pages/Contact";
-import { Home } from "./pages/Home";
 import { Legal } from "./pages/Legal";
 import { Security } from "./pages/Security";
 import "./index.css";
 
-const future = {
-  v7_startTransition: true,
-  v7_relativeSplatPath: true,
-  v7_fetcherPersist: true,
-  v7_normalizeFormMethod: true,
-  v7_partialHydration: true,
-  v7_skipActionErrorRevalidation: true,
-};
+const AUXILIARY_ROUTES = new Set(["#/security", "#/contact", "#/legal"]);
 
-const router = createHashRouter([
-  {
-    path: "/",
-    element: <Layout />,
-    children: [
-      { index: true, element: <Home /> },
-      { path: "security", element: <Security /> },
-      { path: "contact", element: <Contact /> },
-      { path: "legal", element: <Legal /> },
-      { path: "*", element: <Navigate to="/" replace /> },
-    ],
-  },
-], { future });
+function Root() {
+  const [hash, setHash] = useState(() => window.location.hash);
+
+  useEffect(() => {
+    const updateHash = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", updateHash);
+    return () => window.removeEventListener("hashchange", updateHash);
+  }, []);
+
+  useEffect(() => {
+    if (AUXILIARY_ROUTES.has(hash)) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    const sectionId = hash.startsWith("#") ? hash.slice(1) : "";
+    if (!sectionId) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(sectionId)?.scrollIntoView();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [hash]);
+
+  if (hash === "#/security") return <Layout><Security /></Layout>;
+  if (hash === "#/contact") return <Layout><Contact /></Layout>;
+  if (hash === "#/legal") return <Layout><Legal /></Layout>;
+  return <MarketingSite />;
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <Root />
   </StrictMode>,
 );
