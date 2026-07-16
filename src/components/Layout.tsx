@@ -1,7 +1,6 @@
 // Layout.tsx — top nav + footer shell around all routed pages.
 
-import { useEffect } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useEffect, type ReactNode } from "react";
 
 export function Brand({ size = 28 }: { size?: number }) {
   return (
@@ -17,22 +16,15 @@ export function Brand({ size = 28 }: { size?: number }) {
 }
 
 const NAV = [
-  { to: "/#how", label: "How it works" },
-  { to: "/#features", label: "Features" },
-  { to: "/security", label: "Security" },
+  { href: "/#product", label: "Product" },
+  { href: "/#review-loop", label: "Review loop" },
+  { href: "/#trust", label: "Trust" },
 ];
 
-export function Layout() {
-  const { pathname, hash } = useLocation();
-
-  // Hash links within the home page scroll; route changes reset to top.
+export function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
-    if (hash) {
-      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
-    } else {
-      window.scrollTo(0, 0);
-    }
-  }, [pathname, hash]);
+    window.scrollTo(0, 0);
+  }, []);
 
   // Scroll-reveal for any element carrying .reveal.
   useEffect(() => {
@@ -42,26 +34,26 @@ export function Layout() {
     );
     document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [pathname]);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 border-b border-line-soft bg-bg/85 backdrop-blur">
         <div className="wrap flex h-[62px] items-center justify-between">
-          <Link to="/" aria-label="Rulix home"><Brand /></Link>
+          <a href="/" aria-label="Rulix home"><Brand /></a>
           <nav className="flex items-center gap-7 text-[13.5px] font-medium text-text-2 max-md:gap-4">
             {NAV.map((n) => (
-              <Link key={n.to} to={n.to} className="transition-colors hover:text-text-1 max-sm:hidden">
+              <a key={n.href} href={n.href} className="transition-colors hover:text-text-1 max-sm:hidden">
                 {n.label}
-              </Link>
+              </a>
             ))}
-            <Link to="/contact" className="btn primary !py-2 !text-[13px]">Request a demo</Link>
+            <a href="/#request-access" className="btn primary !py-2 !text-[13px]">Request access</a>
           </nav>
         </div>
       </header>
 
       <main className="flex-1">
-        <Outlet />
+        {children}
       </main>
 
       <footer className="border-t border-line-soft bg-bg-2">
@@ -77,16 +69,16 @@ export function Layout() {
           <div className="text-[13.5px]">
             <h4 className="mb-3 text-[12px] uppercase tracking-[0.1em] text-text-3">Product</h4>
             <ul className="m-0 list-none space-y-2 p-0 text-text-2">
-              <li><Link to="/#how" className="hover:text-text-1">How it works</Link></li>
-              <li><Link to="/#features" className="hover:text-text-1">Features</Link></li>
-              <li><Link to="/security" className="hover:text-text-1">Security &amp; data handling</Link></li>
+              <li><a href="/#product" className="hover:text-text-1">Product overview</a></li>
+              <li><a href="/#review-loop" className="hover:text-text-1">Review loop</a></li>
+              <li><a href="/#/security" className="hover:text-text-1">Security &amp; data handling</a></li>
             </ul>
           </div>
           <div className="text-[13.5px]">
             <h4 className="mb-3 text-[12px] uppercase tracking-[0.1em] text-text-3">Company</h4>
             <ul className="m-0 list-none space-y-2 p-0 text-text-2">
-              <li><Link to="/legal" className="hover:text-text-1">Legal &amp; disclaimer</Link></li>
-              <li><Link to="/contact" className="hover:text-text-1">Contact</Link></li>
+              <li><a href="/#/legal" className="hover:text-text-1">Legal &amp; disclaimer</a></li>
+              <li><a href="/#/contact" className="hover:text-text-1">Contact</a></li>
             </ul>
           </div>
         </div>
